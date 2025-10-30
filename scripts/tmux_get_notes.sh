@@ -1,9 +1,7 @@
 #!/usr/bin/env bash
 
 # fetching the value of "tpm_plugins" option
-plugins_list=$(tmux show-option -gqv "@tpm_plugins")
+plugin_path=$(tmux show-env -g TMUX_PLUGIN_MANAGER_PATH | cut -f2 -d=)
 
-# displaying variable content, line by line
-for plugin in $plugins_list; do
-    echo $plugin
-done
+# listing installed plugins
+ls -1 "$plugin_path"
