@@ -22,7 +22,5 @@ else
         tmux send-keys -t $pane $(note_exit_keys)
     else
         tmux switch-client -t $pane
-        tmux select-window -t $pane
-        tmux select-pane -t $pane
     fi
 fi
