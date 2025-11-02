@@ -18,10 +18,11 @@ pane=${panes[0]}
 if [ -z $pane ]; then
     tmux split-window $(note_split_options) $note_cmd
 else
-    pane=${panes[0]}
     if [[ $pane == $current_pane ]]; then
         tmux send-keys -t $pane $(note_exit_keys)
     else
+        tmux switch-client -t $pane
+        tmux select-window -t $pane
         tmux select-pane -t $pane
     fi
 fi
