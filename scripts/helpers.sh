@@ -1,7 +1,7 @@
-if [ -d "$HOME/.tmux/quick_notes" ]; then
-    default_notes_dir="$HOME/.tmux/quick_notes"
+if [ -d "$HOME/.tmux/quick-notes" ]; then
+    default_notes_dir="$HOME/.tmux/quick-notes"
 else
-    default_notes_dir="${XDG_DATA_HOME:-$HOME/.local/share}"/tmux/quick_notes
+    default_notes_dir="${XDG_DATA_HOME:-$HOME/.local/share}"/tmux/quick-notes
 fi
 
 _NOTES_DIR=""
@@ -20,7 +20,7 @@ all_notes_keys() { get_tmux_option @quick-notes-all-notes-keys "e" ; }
 session_notes_keys() { get_tmux_option @quick-notes-session-notes-keys "E" ; }
 
 # Save file format, change this format to specify scope (e.g., "#S.md" would provide session scope and not window)
-note_name_format() { get_tmux_option @quick-notes-name-format "#S-#I.md" ; }
+note_name_format() { get_tmux_option @quick-notes-name-format "#S:#I.md" ; }
 
 # Editor options
 note_editor() { get_tmux_option @quick-notes-editor "nvim" ; }
