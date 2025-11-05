@@ -3,7 +3,12 @@
 CURRENT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source "$CURRENT_DIR/helpers.sh"
 
-SEARCH_FZF="$CURRENT_DIR/fzf_menu.sh"
+if [[ -z "$1" ]]; then
+    action=$(printf "open\ndelete\n[cancel]" | fzf --tmux --header='Select an action.')
+else
+    action="$1"
+fi
+[[ "$action" == "[cancel]" || -z "$action" ]] && exit
 
 nd=$(notes_dir)
 
@@ -13,11 +18,26 @@ for n in $(ls $nd); do
 done
 out+="[cancel]\n"
 
-target=$(printf "$out" | fzf --tmux --preview="$CURRENT_DIR/.preview_note {} $nd")
-[[ "$target" == "[cancel]" || -z "$target" ]] && exit
+header="Open a note"
+if [[ $action == "delete" ]]; then
+    args="-m"
+    header="Delete notes (press TAB)"
+fi
 
-# Extract filename 
-target=$(echo $target | sed 's/.* (\(.*\))/\1/')
+mapfile -t target < <(printf "$out" | fzf --tmux $args --header="$header" --preview="$CURRENT_DIR/.preview_note {} $nd")
 
-$CURRENT_DIR/open_note.sh $target
+# Extract filenames
+target_str=""
+for t in "${target[@]}"; do
+    [[ "$t" == "[cancel]" ]] && exit
+    target_str+="$(echo $t | sed 's/.* (\(.*\))/\1/g')\n"
+done
+[[ -z "$target_str" ]] && exit
+
+if [[ $action == "delete" ]]; then
+    echo -e $target_str | xargs -I{} rm "$nd/{}"
+    exit
+fi
+
+$CURRENT_DIR/open_note.sh $target_str
 
