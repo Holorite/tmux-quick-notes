@@ -4,7 +4,7 @@ CURRENT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source "$CURRENT_DIR/helpers.sh"
 
 if [[ -z "$1" ]]; then
-    action=$(printf "open\ndelete\n[cancel]" | fzf --tmux --header='Select an action.')
+    action=$(printf "goto\nopen\ndelete\n[cancel]" | fzf --tmux --header='Select an action.')
 else
     action="$1"
 fi
@@ -18,10 +18,13 @@ for n in $(ls $nd); do
 done
 out+="[cancel]\n"
 
-header="Open a note"
 if [[ $action == "delete" ]]; then
     args="-m"
     header="Delete notes (press TAB)"
+elif [[ $action == "open" ]]; then
+    header="Open a note (in this window)"
+elif [[ $action == "goto" ]]; then
+    header="Open a note (in its associated location)"
 fi
 
 mapfile -t target_map < <(printf "$out" | fzf --tmux $args --header="$header" --preview="$CURRENT_DIR/.preview_note {} $nd")
@@ -39,4 +42,4 @@ if [[ $action == "delete" ]]; then
     exit
 fi
 
-$CURRENT_DIR/open_note.sh ${targets[0]}
+$CURRENT_DIR/open_note.sh ${targets[0]} $action

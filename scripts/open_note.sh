@@ -25,30 +25,38 @@ found_pane=${existing_panes[0]}
 # Behaviour:
 # - If a pane open with the note does not exist then make one
 # Otherwise either switch to it or close it if it is the current pant
-if [ -z $found_pane ]; then
-    tmux switch-client -t $target_pane
-    # If we were not able to go to the pane specified in the note name then the note has been orphaned
-    status=$?
-    if [ $status -ne 0 ]; then 
-        header="This note is orphaned"
-        if [ -s $(note_path $target_note_name) ]; then 
-            header+=", cannot rebind as $target_note_name exists."
-        else
-            actions="rebind\n"
-            header+=", rebind to $target_note_name?"
-        fi
-        actions+="open\ndelete\n[cancel]\n" 
+if [[ -z $found_pane ]]; then
 
-        action=$(printf "$actions" | fzf --tmux --footer="Orphaned note: $note_name" --header="$header")
-        [[ "$action" == "[cancel]" || -z "$action" ]] && exit
+    if [[ -z $2 || $2 == 'goto' ]]; then
+        tmux switch-client -t $target_pane
+        # If we were not able to go to the pane specified in the note name then the note has been orphaned
+        status=$?
+        if [ $status -ne 0 ]; then 
+            header="This note is orphaned"
+            if [ -s $(note_path $target_note_name) ]; then 
+                header+=", cannot rebind as $target_note_name exists."
+            else
+                actions="rebind\n"
+                header+=", rebind to $target_note_name?"
+            fi
+            actions+="open\ndelete\n[cancel]\n" 
 
-        if [[ "$action" == 'delete' ]]; then
-            rm $(note_path $note_name)
-            exit
-        elif [[ "$action" == 'rebind' ]]; then
-            mv $(note_path $note_name) $(note_path $target_note_name)
-            get_note_cmd $target_note_name
+            action=$(printf "$actions" | fzf --tmux --footer="Orphaned note: $note_name" --header="$header")
+            [[ "$action" == "[cancel]" || -z "$action" ]] && exit
+
+            if [[ "$action" == 'delete' ]]; then
+                rm $(note_path $note_name)
+                exit
+            elif [[ "$action" == 'rebind' ]]; then
+                mv $(note_path $note_name) $(note_path $target_note_name)
+                get_note_cmd $target_note_name
+            fi
         fi
+    elif [[ $2 == 'open' ]]; then
+        :
+    else
+        echo "Unknown open note options: $2"
+        exit 2
     fi
 
     tmux split-window $(note_split_options) $note_cmd
