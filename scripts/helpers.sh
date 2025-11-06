@@ -24,7 +24,7 @@ note_name_format() { get_tmux_option @quick-notes-name-format "#S:#I.md" ; }
 
 # Editor options
 note_editor() { get_tmux_option @quick-notes-editor "nvim" ; }
-note_exit_keys() { get_tmux_option @quick-notes-split-options "Escape :q Enter :wq Enter" ; }
+note_exit_keys() { get_tmux_option @quick-notes-split-options "Escape :silent! q Enter :wq Enter" ; }
 
 # Visual options
 note_popup_options() { get_tmux_option @quick-notes-popup-options "-x C -w 35%" ; }

@@ -65,6 +65,12 @@ else # Note is already open somewhere
     # Close it if we are already in that pane
     if [[ $found_pane == $current_pane ]]; then
         tmux send-keys -t $found_pane $(note_exit_keys)
+        sleep 0.1 # sleep to ensure file gets saved first
+
+        # Automatically remove the note if it is empty
+        if [ ! -s $(note_path $note_name) ]; then
+            rm $(note_path $note_name)
+        fi
     else
         tmux switch-client -t $found_pane
     fi
