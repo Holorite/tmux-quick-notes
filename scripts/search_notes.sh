@@ -24,20 +24,19 @@ if [[ $action == "delete" ]]; then
     header="Delete notes (press TAB)"
 fi
 
-mapfile -t target < <(printf "$out" | fzf --tmux $args --header="$header" --preview="$CURRENT_DIR/.preview_note {} $nd")
+mapfile -t target_map < <(printf "$out" | fzf --tmux $args --header="$header" --preview="$CURRENT_DIR/.preview_note {} $nd")
+[[ ${#target_map[@]} -eq 0 ]] && exit
 
 # Extract filenames
-target_str=""
-for t in "${target[@]}"; do
+targets=()
+for t in "${target_map[@]}"; do
     [[ "$t" == "[cancel]" ]] && exit
-    target_str+="$(echo $t | sed 's/.* (\(.*\))/\1/g')\n"
+    targets+=($(echo $t | sed 's/.* (\(.*\))/\1/g'))
 done
-[[ -z "$target_str" ]] && exit
 
 if [[ $action == "delete" ]]; then
-    echo -e $target_str | xargs -I{} rm "$nd/{}"
+    printf "%s\n" "${targets[@]}" | xargs -I{} rm "$nd/{}"
     exit
 fi
 
-$CURRENT_DIR/open_note.sh $target_str
-
+$CURRENT_DIR/open_note.sh ${targets[0]}
