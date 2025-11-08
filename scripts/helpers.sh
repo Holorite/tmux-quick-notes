@@ -16,11 +16,28 @@ get_tmux_option() {
 note_keys() { get_tmux_option @quick-notes-keys "C-e" ; }
 note_root_keys() { get_tmux_option @quick-notes-root-keys "" ; }
 
-all_notes_keys() { get_tmux_option @quick-notes-all-notes-keys "e" ; }
-session_notes_keys() { get_tmux_option @quick-notes-session-notes-keys "E" ; }
+associative_note_keys() { get_tmux_option @associative-notes-keys "E" ; }
 
-# Save file format, change this format to specify scope (e.g., "#S.md" would provide session scope and not window)
-note_name_format() { get_tmux_option @quick-notes-name-format "#S:#I.md" ; }
+search_notes_keys() { get_tmux_option @quick-notes-search-notes-keys "e" ; }
+
+# Associativity and files
+note_file_type() { get_tmux_option @quick-notes-file-type ".md" ; }
+default_associativity() { get_tmux_option @quick-notes-default-associativity "session" ; }
+window_format() { get_tmux_option @quick-notes-window-format "#S:#I" ; }
+session_format() { get_tmux_option @quick-notes-session-format "#S" ; }
+global_format() { get_tmux_option @quick-notes-global-format "global_notes" ; }
+
+get_default_format() {
+    echo $(get_format $(default_associativity))
+}
+get_format() {
+    val=$(eval "$1_format")
+    if [[ -z "$val" ]]; then
+        echo "Unknown format name: $1"
+        exit 1
+    fi
+    echo "$val$(note_file_type)"
+}
 
 # Editor options
 note_editor() { get_tmux_option @quick-notes-editor "nvim" ; }
@@ -46,3 +63,5 @@ note_path() {
     local note_name="$1"
     echo "$(notes_dir)/$1"
 }
+
+STATE_FILE=$(note_path "state.txt")

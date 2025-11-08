@@ -4,7 +4,7 @@ CURRENT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source "$CURRENT_DIR/helpers.sh"
 
 if [[ -z "$1" ]]; then
-    action=$(printf "goto\nopen\ndelete\n[cancel]" | fzf --tmux --header='Select an action.')
+    action=$(printf "goto\nopen\ndelete\nswitch associativity\n[cancel]" | fzf --tmux --header='Select an action.')
 else
     action="$1"
 fi
@@ -13,7 +13,7 @@ fi
 nd=$(notes_dir)
 
 out=""
-for n in $(ls $nd); do
+for n in $(ls $nd | grep $(note_file_type)); do
     out+="$(head -n 1 $nd/$n) ($n)\n"
 done
 out+="[cancel]\n"
@@ -25,6 +25,11 @@ elif [[ $action == "open" ]]; then
     header="Open a note (in this window)"
 elif [[ $action == "goto" ]]; then
     header="Open a note (in its associated location)"
+elif [[ $action == "switch associativity" ]]; then
+    associativity=$(printf "window\nsession\nglobal\n[cancel]" | fzf --tmux --header='Select an associativity.')
+    [[ "$associativity" == "[cancel]" || -z "$associativity" ]] && exit
+    printf '%s\n' "$associativity" > "$STATE_FILE"
+    exit
 fi
 
 mapfile -t target_map < <(printf "$out" | fzf --tmux $args --header="$header" --preview="$CURRENT_DIR/.preview_note {} $nd")
@@ -42,4 +47,4 @@ if [[ $action == "delete" ]]; then
     exit
 fi
 
-$CURRENT_DIR/open_note.sh ${targets[0]} $action
+$CURRENT_DIR/open_note.sh --name ${targets[0]} --mode $action

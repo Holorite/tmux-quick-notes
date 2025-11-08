@@ -12,17 +12,13 @@ source "$CURRENT_DIR/scripts/helpers.sh"
 mkdir -p $(notes_dir)
 
 for key in $(note_keys); do
-    tmux bind-key -N "Open notes" $key run-shell "$CURRENT_DIR/scripts/open_note.sh"
+    tmux bind-key -N "Open note" $key run-shell "$CURRENT_DIR/scripts/open_note.sh"
 done
 
 for key in $(note_root_keys); do
-    tmux bind-key -N "Open notes" $key run-shell "$CURRENT_DIR/scripts/open_note.sh"
+    tmux bind-key -N "Open note" $key run-shell "$CURRENT_DIR/scripts/open_note.sh"
 done
 
-for key in $(all_notes_keys); do
+for key in $(search_notes_keys); do
     tmux bind-key -N "Search all notes" $key run-shell "$CURRENT_DIR/scripts/search_notes.sh"
-done
-
-for key in $(session_notes_keys); do
-    tmux bind-key -N "Session notes" $key run-shell "$CURRENT_DIR/scripts/search_notes.sh #S"
 done

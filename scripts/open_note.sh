@@ -3,22 +3,35 @@
 CURRENT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source "$CURRENT_DIR/helpers.sh"
 
-target_note_name=$(tmux display-message -pF "$(note_name_format)")
-if [ -z $1 ]; then
-    note_name=$target_note_name
-else
-    note_name=$1
-fi
-target_pane=${note_name%.md}
-
 get_note_cmd() {
-    note_cmd="$(note_editor) $(note_path $1)"
+    echo "$(note_editor) $(note_path $TARGET_NOTE_NAME)"
 }
-get_note_cmd $note_name
+
+if [ -f "$STATE_FILE" ]; then
+    read -r associativity < "$STATE_FILE"
+else
+    associativity = $(default_associativity)
+fi
+
+FORMAT=$(get_format "$associativity")
+TARGET_NOTE_NAME=$(tmux display-message -pF "$FORMAT")
+MODE="goto"
+while true; do
+    case "$1" in
+        --name ) TARGET_NOTE_NAME="$2"; shift 2;;
+        --associativity ) FORMAT=$(get_format "$2"); TARGET_NOTE_NAME=$(tmux display-message -pF "$FORMAT"); shift 2;;
+        --mode ) MODE="$2"; shift 2;;
+        -- ) shift; break ;;
+        * ) break ;;
+    esac
+done
+
+note_cmd=$(get_note_cmd $TARGET_NOTE_NAME)
+
+target_pane=${TARGET_NOTE_NAME%.md}
 
 pane_id_format="#S:#I.#P"
 current_pane=$(tmux display-message -pF "$pane_id_format")
-
 existing_panes=$(tmux list-panes -a -F "$pane_id_format" -f "#{m:$note_cmd,#{pane_start_command}}")
 found_pane=${existing_panes[0]}
 
@@ -27,8 +40,10 @@ found_pane=${existing_panes[0]}
 # Otherwise either switch to it or close it if it is the current pant
 if [[ -z $found_pane ]]; then
 
-    if [[ -z $2 || $2 == 'goto' ]]; then
-        tmux switch-client -t $target_pane
+    if [[ $MODE == 'goto' ]]; then
+        if [[ $FORMAT != $(get_format 'global') ]]; then
+            tmux switch-client -t "$target_pane"
+        fi
         # If we were not able to go to the pane specified in the note name then the note has been orphaned
         status=$?
         if [ $status -ne 0 ]; then 
@@ -52,10 +67,10 @@ if [[ -z $found_pane ]]; then
                 get_note_cmd $target_note_name
             fi
         fi
-    elif [[ $2 == 'open' ]]; then
+    elif [[ $MODE == 'open' ]]; then
         :
     else
-        echo "Unknown open note options: $2"
+        echo "Unknown opening mode: $MODE"
         exit 2
     fi
 
