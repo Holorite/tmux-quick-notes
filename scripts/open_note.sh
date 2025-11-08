@@ -28,7 +28,7 @@ done
 
 note_cmd=$(get_note_cmd $TARGET_NOTE_NAME)
 
-target_pane=${TARGET_NOTE_NAME%.md}
+target_pane=${TARGET_NOTE_NAME%$(note_file_type)}
 
 pane_id_format="#S:#I.#P"
 current_pane=$(tmux display-message -pF "$pane_id_format")
@@ -41,30 +41,31 @@ found_pane=${existing_panes[0]}
 if [[ -z $found_pane ]]; then
 
     if [[ $MODE == 'goto' ]]; then
-        if [[ $FORMAT != $(get_format 'global') ]]; then
+        if [[ $TARGET_NOTE_NAME != $(get_format 'global') ]]; then
             tmux switch-client -t "$target_pane"
         fi
         # If we were not able to go to the pane specified in the note name then the note has been orphaned
         status=$?
         if [ $status -ne 0 ]; then 
             header="This note is orphaned"
-            if [ -s $(note_path $target_note_name) ]; then 
-                header+=", cannot rebind as $target_note_name exists."
+            LOCAL_NAME=$(tmux display-message -pF "$FORMAT")
+            if [ -s $(note_path $LOCAL_NAME) ]; then 
+                header+=", cannot rebind as $LOCAL_NAME exists."
             else
                 actions="rebind\n"
-                header+=", rebind to $target_note_name?"
+                header+=", rebind to $LOCAL_NAME?"
             fi
             actions+="open\ndelete\n[cancel]\n" 
 
-            action=$(printf "$actions" | fzf --tmux --footer="Orphaned note: $note_name" --header="$header")
+            action=$(printf "$actions" | fzf --tmux $QN_FZF_OPTIONS --footer="Orphaned note: $TARGET_NOTE_NAME" --header="$header")
             [[ "$action" == "[cancel]" || -z "$action" ]] && exit
 
             if [[ "$action" == 'delete' ]]; then
-                rm $(note_path $note_name)
+                rm $(note_path $TARGET_NOTE_NAME)
                 exit
             elif [[ "$action" == 'rebind' ]]; then
-                mv $(note_path $note_name) $(note_path $target_note_name)
-                get_note_cmd $target_note_name
+                mv $(note_path $TARGET_NOTE_NAME) $(note_path $LOCAL_NAME)
+                get_note_cmd $LOCAL_NAME
             fi
         fi
     elif [[ $MODE == 'open' ]]; then
@@ -83,8 +84,8 @@ else # Note is already open somewhere
         sleep 0.1 # sleep to ensure file gets saved first
 
         # Automatically remove the note if it is empty
-        if [ ! -s $(note_path $note_name) ]; then
-            rm $(note_path $note_name)
+        if [ -e $(note_path $TARGET_NOTE_NAME) ] && [ ! -s $(note_path $TARGET_NOTE_NAME) ]; then
+            rm $(note_path $TARGET_NOTE_NAME)
         fi
     else
         tmux switch-client -t $found_pane

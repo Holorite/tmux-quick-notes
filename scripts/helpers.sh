@@ -6,6 +6,8 @@ fi
 
 _NOTES_DIR=""
 
+[ -z "$QN_FZF_OPTIONS" ] && QN_FZF_OPTIONS="62%,38%"
+
 get_tmux_option() {
     local key="$1" default="$2"
     local value=$(tmux show-options -gqv "$key")
