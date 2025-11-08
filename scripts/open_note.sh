@@ -42,7 +42,6 @@ found_pane=${existing_panes[0]}
 #   - 'open': simply open the note here
 # otherwise:
 #   - Go to the open note's pane, if we're already there, close it
-
 if [[ -z $found_pane ]]; then
 
     if [[ $MODE == 'goto' ]]; then
@@ -70,7 +69,7 @@ if [[ -z $found_pane ]]; then
                 exit
             elif [[ "$action" == 'rebind' ]]; then
                 mv $(note_path $TARGET_NOTE_NAME) $(note_path $LOCAL_NAME)
-                note_cmd=$(get_note_cmd $TARGET_NOTE_NAME)
+                note_cmd=$(get_note_cmd $LOCAL_NAME)
             fi
         fi
     elif [[ $MODE == 'open' ]]; then
