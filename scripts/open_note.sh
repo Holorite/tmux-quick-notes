@@ -69,7 +69,7 @@ if [[ -z $found_pane ]]; then
                 exit
             elif [[ "$action" == 'rebind' ]]; then
                 mv $(note_path $TARGET_NOTE_NAME) $(note_path $LOCAL_NAME)
-                TARGET_NOTE_NAME = $LOCAL_NAME
+                TARGET_NOTE_NAME=$LOCAL_NAME
                 note_cmd=$(get_note_cmd $TARGET_NOTE_NAME)
             fi
         fi
