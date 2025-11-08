@@ -36,8 +36,13 @@ existing_panes=$(tmux list-panes -a -F "$pane_id_format" -f "#{m:$note_cmd,#{pan
 found_pane=${existing_panes[0]}
 
 # Behaviour:
-# - If a pane open with the note does not exist then make one
-# Otherwise either switch to it or close it if it is the current pant
+# If the note is not already open somewhere
+#   - 'goto': attempt to go to the notes associated location
+#       - If the associated location does not exist attempt to rebind it
+#   - 'open': simply open the note here
+# otherwise:
+#   - Go to the open note's pane, if we're already there, close it
+
 if [[ -z $found_pane ]]; then
 
     if [[ $MODE == 'goto' ]]; then
@@ -65,7 +70,7 @@ if [[ -z $found_pane ]]; then
                 exit
             elif [[ "$action" == 'rebind' ]]; then
                 mv $(note_path $TARGET_NOTE_NAME) $(note_path $LOCAL_NAME)
-                get_note_cmd $LOCAL_NAME
+                note_cmd=$(get_note_cmd $TARGET_NOTE_NAME)
             fi
         fi
     elif [[ $MODE == 'open' ]]; then
