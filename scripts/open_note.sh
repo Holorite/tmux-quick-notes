@@ -69,7 +69,22 @@ if [[ -z $found_pane ]]; then
                 exit
             elif [[ "$action" == 'rebind' ]]; then
                 mv $(note_path $TARGET_NOTE_NAME) $(note_path $LOCAL_NAME)
-                note_cmd=$(get_note_cmd $LOCAL_NAME)
+                TARGET_NOTE_NAME = $LOCAL_NAME
+                note_cmd=$(get_note_cmd $TARGET_NOTE_NAME)
+            fi
+        fi
+
+        if [[ $action != "open" ]]; then
+            # Switch to whatever is the correct associativity
+            if [[ $(tmux display-message -pF "$(get_format global)" ) == $TARGET_NOTE_NAME ]]; then
+                printf '%s\n' "global" > "$STATE_FILE"
+            elif [[ $(tmux display-message -pF "$(get_format session)" ) == $TARGET_NOTE_NAME ]]; then
+                printf '%s\n' "session" > "$STATE_FILE"
+            elif [[ $(tmux display-message -pF "$(get_format window)" ) == $TARGET_NOTE_NAME ]]; then
+                printf '%s\n' "window" > "$STATE_FILE"
+            else
+                echo 'uhh'
+                exit 2
             fi
         fi
     elif [[ $MODE == 'open' ]]; then
