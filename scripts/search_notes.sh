@@ -37,7 +37,7 @@ elif [[ $action == "switch associativity" ]]; then
     exit
 fi
 
-mapfile -t target_map < <(printf "$out" | fzf --tmux $QN_FZF_OPTIONS $args --header="$header" --preview="$CURRENT_DIR/.preview_note {} $nd")
+mapfile -t target_map < <(printf "$out" | fzf --tmux $QN_FZF_OPTIONS $args --header="$header" --preview="$CURRENT_DIR/$QN_PREVIEWER {} $nd")
 [[ ${#target_map[@]} -eq 0 ]] && exit
 
 # Extract filenames

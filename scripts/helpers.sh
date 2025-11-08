@@ -8,6 +8,13 @@ _NOTES_DIR=""
 
 [ -z "$QN_FZF_OPTIONS" ] && QN_FZF_OPTIONS="62%,38%"
 
+if [ -x "$(command -v bat)" ]; then
+    [ -z "$QN_PREVIEWER" ] && QN_PREVIEWER=".preview_note_bat"
+else
+    [ -z "$QN_PREVIEWER" ] && QN_PREVIEWER=".preview_note"
+fi
+
+
 get_tmux_option() {
     local key="$1" default="$2"
     local value=$(tmux show-options -gqv "$key")
