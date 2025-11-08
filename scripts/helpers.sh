@@ -6,15 +6,6 @@ fi
 
 _NOTES_DIR=""
 
-[ -z "$QN_FZF_OPTIONS" ] && QN_FZF_OPTIONS="62%,38%"
-
-if [ -x "$(command -v bat)" ]; then
-    [ -z "$QN_PREVIEWER" ] && QN_PREVIEWER=".preview_note_bat"
-else
-    [ -z "$QN_PREVIEWER" ] && QN_PREVIEWER=".preview_note"
-fi
-
-
 get_tmux_option() {
     local key="$1" default="$2"
     local value=$(tmux show-options -gqv "$key")
@@ -52,9 +43,17 @@ get_format() {
 note_editor() { get_tmux_option @quick-notes-editor "nvim" ; }
 note_exit_keys() { get_tmux_option @quick-notes-split-options "Escape :silent! q Enter :wq Enter" ; }
 
+# Previewer
+if [ -x "$(command -v bat)" ]; then
+    [ -z "$QN_PREVIEWER" ] && QN_PREVIEWER=".preview_note_bat"
+else
+    [ -z "$QN_PREVIEWER" ] && QN_PREVIEWER=".preview_note"
+fi
+
 # Visual options
-note_popup_options() { get_tmux_option @quick-notes-popup-options "-x C -w 35%" ; }
-note_split_options() { get_tmux_option @quick-notes-split-options "-h -l 30%" ; }
+note_split_options() { get_tmux_option @quick-notes-split-options "-h -l 40%" ; }
+
+[ -z "$QN_FZF_OPTIONS" ] && QN_FZF_OPTIONS="62%,38%"
 
 # directories
 notes_dir() {
