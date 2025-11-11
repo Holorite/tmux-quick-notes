@@ -2,8 +2,9 @@
 A simple associative notes manager for Tmux.
 
 ## Dependencies
-fzf
-Tmux 5.5a
+- fzf
+- Tmux 5.5a
+- sed
 
 # Usage
 
