@@ -1,10 +1,21 @@
 # Tmux Quick Notes
 A simple associative notes manager for Tmux.
 
+# Installation
+
 ## Dependencies
+
 - fzf
 - Tmux 5.5a
 - sed
+
+## Install Via [TPM](https://github.com/tmux-plugins/tpm)
+
+Add this to your `~/.tmux.conf`
+```.tmux.conf
+set -g @plugin 'Holorite/tmux-quick-notes'
+```
+Then reload your configuration and press `prefix` + `I`.
 
 # Usage
 
