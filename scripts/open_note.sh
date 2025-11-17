@@ -7,11 +7,7 @@ get_note_cmd() {
     echo "$(note_editor) $(note_path $TARGET_NOTE_NAME)"
 }
 
-if [ -f "$STATE_FILE" ]; then
-    read -r associativity < "$STATE_FILE"
-else
-    associativity = $(default_associativity)
-fi
+read -r associativity < "$STATE_FILE"
 
 FORMAT=$(get_format "$associativity")
 TARGET_NOTE_NAME=$(tmux display-message -pF "$FORMAT")
@@ -83,7 +79,7 @@ if [[ -z $found_pane ]]; then
             elif [[ $(tmux display-message -pF "$(get_format window)" ) == $TARGET_NOTE_NAME ]]; then
                 printf '%s\n' "window" > "$STATE_FILE"
             else
-                echo 'uhh'
+                echo "Unknown associativity for $TARGET_NOTE_NAME"
                 exit 2
             fi
         fi

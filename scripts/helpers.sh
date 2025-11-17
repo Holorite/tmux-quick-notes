@@ -72,4 +72,4 @@ note_path() {
     echo "$(notes_dir)/$1"
 }
 
-STATE_FILE=$(note_path "state.txt")
+SATE_FILE=$(note_path "state.txt")

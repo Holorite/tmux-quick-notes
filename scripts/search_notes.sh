@@ -26,11 +26,7 @@ elif [[ $action == "open" ]]; then
 elif [[ $action == "goto" ]]; then
     header="Open a note (in its associated location)"
 elif [[ $action == "switch associativity" ]]; then
-    if [ -f "$STATE_FILE" ]; then
-        read -r cur_assoc < "$STATE_FILE"
-    else
-        cur_assoc = $(default_associativity)
-    fi
+    read -r cur_assoc < "$STATE_FILE"
     associativity=$(printf "window\nsession\nglobal\n[cancel]" | fzf --tmux $QN_FZF_OPTIONS --header="Select an associativity (current: $cur_assoc)")
     [[ "$associativity" == "[cancel]" || -z "$associativity" ]] && exit
     printf '%s\n' "$associativity" > "$STATE_FILE"

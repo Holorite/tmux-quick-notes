@@ -11,6 +11,10 @@ source "$CURRENT_DIR/scripts/helpers.sh"
 
 mkdir -p $(notes_dir)
 
+if [ ! -f $STATE_FILE ]; then
+    printf '%s\n' "$(default_associativity)" > "$STATE_FILE"
+fi
+
 for key in $(note_keys); do
     tmux bind-key -N "Open note" $key run-shell "$CURRENT_DIR/scripts/open_note.sh"
 done
