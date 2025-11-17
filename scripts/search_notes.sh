@@ -3,8 +3,9 @@
 CURRENT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source "$CURRENT_DIR/helpers.sh"
 
+read -r cur_assoc < "$STATE_FILE"
 if [[ -z "$1" ]]; then
-    action=$(printf "goto\nopen\ndelete\nswitch associativity\n[cancel]" | fzf --tmux $QN_FZF_OPTIONS --header='Select an action.')
+    action=$(printf "goto\nopen\ndelete\nswitch associativity\n[cancel]" | fzf --tmux $QN_FZF_OPTIONS --header='Select an action.' --footer="Tmux Quick Notes (current associativity: $cur_assoc)")
 else
     action="$1"
 fi
@@ -26,14 +27,13 @@ elif [[ $action == "open" ]]; then
 elif [[ $action == "goto" ]]; then
     header="Open a note (in its associated location)"
 elif [[ $action == "switch associativity" ]]; then
-    read -r cur_assoc < "$STATE_FILE"
-    associativity=$(printf "window\nsession\nglobal\n[cancel]" | fzf --tmux $QN_FZF_OPTIONS --header="Select an associativity (current: $cur_assoc)")
+    associativity=$(printf "window\nsession\nglobal\n[cancel]" | fzf --tmux $QN_FZF_OPTIONS --header="Select an associativity" --footer="Tmux Quick Notes (current associativity: $cur_assoc)")
     [[ "$associativity" == "[cancel]" || -z "$associativity" ]] && exit
     printf '%s\n' "$associativity" > "$STATE_FILE"
     exit
 fi
 
-mapfile -t target_map < <(printf "$out" | fzf --tmux $QN_FZF_OPTIONS $args --header="$header" --preview="$CURRENT_DIR/$QN_PREVIEWER {} $nd")
+mapfile -t target_map < <(printf "$out" | fzf --tmux $QN_FZF_OPTIONS $args --header="$header" --preview="$CURRENT_DIR/$QN_PREVIEWER {} $nd" --footer="Tmux Quick Notes (current associativity: $cur_assoc)")
 [[ ${#target_map[@]} -eq 0 ]] && exit
 
 # Extract filenames
@@ -44,7 +44,7 @@ for t in "${target_map[@]}"; do
 done
 
 if [[ $action == "delete" ]]; then
-    confirm=$(printf "no\nyes\n" | fzf --tmux $QN_FZF_OPTIONS --header="Are you sure you want to delete ${targets[*]}?")
+    confirm=$(printf "no\nyes\n" | fzf --tmux $QN_FZF_OPTIONS --header="Are you sure you want to delete ${targets[*]}?" --footer="Tmux Quick Notes (current associativity: $cur_assoc)")
     [[ "$confirm" == "no" || -z "$confirm" ]] && exit
     printf "%s\n" "${targets[@]}" | xargs -I{} rm "$nd/{}"
     exit
